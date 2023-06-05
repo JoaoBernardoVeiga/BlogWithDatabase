@@ -27,11 +27,20 @@ mongoose.connect("mongodb+srv://"
 +"@cluster0.0dbe7qp.mongodb.net/"
 + dbName);
 
+const postSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+});
+const Post = mongoose.model("Post", postSchema);
+
 app.get("/", function(req, res){
-  res.render("home", {
-    startingContent: homeStartingContent,
-    posts: posts
-    });
+
+  Post.find({})
+  .then((foundPosts) => {            
+    res.render("home", {
+      startingContent: homeStartingContent, 
+      posts: foundPosts});
+  });
 });
 
 app.get("/about", function(req, res){
@@ -47,19 +56,13 @@ app.get("/compose", function(req, res){
 });
 
 app.post("/compose", function(req, res){
-  
-  const postSchema = new mongoose.Schema({
-    title: String,
-    content: String,
-  });
-  const Post = mongoose.model("Post", postSchema);
-  
-  const newPost = new Post({
+    
+  const post = new Post({
     title: req.body.postTitle,
     content: req.body.postBody
   });
 
-  newPost.save()
+  post.save()
     .then(() => {
       res.redirect("/");
     })
